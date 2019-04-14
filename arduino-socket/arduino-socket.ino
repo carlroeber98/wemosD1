@@ -19,14 +19,16 @@ WebSocketsServer webSocket = WebSocketsServer(81);
 
 const char TYPE[][10] = {"samsung", "teac"};
 
-const int SEND_PIN = D5; 
+const int SEND_TEAC_PIN = D5; 
+const int SEND_SAMSUNG_PIN = D6; 
 
 char delimiter[] = ";";
 
 MDNSResponder mdns;
 ESP8266WiFiMulti WiFiMulti;
 
-IRsend irsend(SEND_PIN);
+IRsend irsendTeac(SEND_TEAC_PIN);
+IRsend irsendSamsung(SEND_SAMSUNG_PIN);
 
 uint32_t getHexCode(char* payload){
   strtok(payload, delimiter);
@@ -61,10 +63,10 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
     case WStype_TEXT:
       
       if (strstr((const char *)payload, TYPE[0]) != 0) {
-        irsend.sendSAMSUNG(getHexCode((char*) payload), 32);
+        irsendSamsung.sendSAMSUNG(getHexCode((char*) payload), 32);
       }
       else if (strstr((const char *)payload, TYPE[1]) != 0) {
-        irsend.sendNEC(getHexCode((char*) payload), 32);
+        irsendTeac.sendNEC(getHexCode((char*) payload), 32);
       }
       else {
         Serial.println("Unknown type");
@@ -89,7 +91,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 
 void setup() {
   Serial.begin(115200);
-  irsend.begin();
+  irsendTeac.begin();
+  irsendSamsung.begin();
   Serial.println("SENDER INITIALIZED");
 
   Serial.println("");
