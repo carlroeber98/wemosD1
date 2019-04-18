@@ -17,18 +17,19 @@ const char* socket_password = "FLpRduPT9gmfsCW6tHh2WDuTa2JqgJ";
 
 WebSocketsServer webSocket = WebSocketsServer(81);
 
-const char TYPE[][10] = {"samsung", "teac"};
+const char TYPE[][10] = {"samsung", "teac", "switch"};
 
 const int SEND_TEAC_PIN = D5; 
 const int SEND_SAMSUNG_PIN = D6; 
+const int SEND_SWITCH_PIN = D7; 
 
 char delimiter[] = ";";
 
 MDNSResponder mdns;
 ESP8266WiFiMulti WiFiMulti;
 
-IRsend irsendTeac(SEND_TEAC_PIN);
-IRsend irsendSamsung(SEND_SAMSUNG_PIN);
+IRsend irsendTeac = IRsend(SEND_TEAC_PIN);
+IRsend irsendSamsung = IRsend(SEND_SAMSUNG_PIN);
 
 uint32_t getHexCode(char* payload){
   strtok(payload, delimiter);
@@ -53,20 +54,21 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
       Serial.printf("[%u] Disconnected!\r\n", num);
       break;
     case WStype_CONNECTED:
-      {
+    {
         IPAddress ip = webSocket.remoteIP(num);
         Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\r\n", num, ip[0], ip[1], ip[2], ip[3], payload);
         webSocket.sendTXT(num, "Connected", strlen("Connected"));
       }
       break;
-      
     case WStype_TEXT:
-      
       if (strstr((const char *)payload, TYPE[0]) != 0) {
         irsendSamsung.sendSAMSUNG(getHexCode((char*) payload), 32);
       }
       else if (strstr((const char *)payload, TYPE[1]) != 0) {
         irsendTeac.sendNEC(getHexCode((char*) payload), 32);
+      }
+      else if (strstr((const char *)payload, TYPE[2]) != 0) {
+        // send to 433kHz sender
       }
       else {
         Serial.println("Unknown type");
@@ -95,7 +97,6 @@ void setup() {
   irsendSamsung.begin();
   Serial.println("SENDER INITIALIZED");
 
-  Serial.println("");
   for(uint8_t t = 5; t > 0; t--) {
     Serial.printf("[SETUP] BOOT WAIT %d...\r\n", t);
     Serial.flush();
