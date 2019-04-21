@@ -19,11 +19,20 @@ WebSocketsServer webSocket = WebSocketsServer(81);
 
 const char TYPE[][10] = {"samsung", "teac", "switch"};
 
+const int SEND_TRIGGER = D4;
+const int RESEIVE_ECHO = D7;
 const int SEND_TEAC_PIN = D5; 
 const int SEND_SAMSUNG_PIN = D6; 
-const int SEND_SWITCH_PIN = D7; 
+const int SEND_SWITCH_PIN = D3; 
 
 char delimiter[] = ";";
+
+boolean action = false;
+int actions = 0;
+int calculations = 0;
+int distanceBefore;
+
+int connectedClients = 0;
 
 MDNSResponder mdns;
 ESP8266WiFiMulti WiFiMulti;
@@ -52,14 +61,15 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
   switch(type) {
     case WStype_DISCONNECTED:
       Serial.printf("[%u] Disconnected!\r\n", num);
+      connectedClients--;
       break;
-    case WStype_CONNECTED:
-    {
-        IPAddress ip = webSocket.remoteIP(num);
-        Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\r\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-        webSocket.sendTXT(num, "Connected", strlen("Connected"));
-      }
-      break;
+    case WStype_CONNECTED: {
+      IPAddress ip = webSocket.remoteIP(num);
+      Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\r\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+      connectedClients++;
+      webSocket.sendTXT(num, "Connected", strlen("Connected"));
+    }
+    break;
     case WStype_TEXT:
       if (strstr((const char *)payload, TYPE[0]) != 0) {
         irsendSamsung.sendSAMSUNG(getHexCode((char*) payload), 32);
@@ -91,11 +101,27 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
   }
 }
 
+int measureDistance(){ 
+ long t = 0;
+ digitalWrite(SEND_TRIGGER, LOW); 
+ delayMicroseconds(3);
+ noInterrupts();
+ digitalWrite(SEND_TRIGGER, HIGH);
+ delayMicroseconds(10);
+ digitalWrite(SEND_TRIGGER, LOW); 
+ t = pulseIn(RESEIVE_ECHO, HIGH);
+ interrupts(); 
+ return ((t/2) / 29.1); 
+}
+
 void setup() {
   Serial.begin(115200);
   irsendTeac.begin();
   irsendSamsung.begin();
-  Serial.println("SENDER INITIALIZED");
+  pinMode(SEND_TRIGGER, OUTPUT);
+  pinMode(RESEIVE_ECHO, INPUT);
+  digitalWrite(SEND_TRIGGER, LOW);
+  Serial.println("PINS INITIALIZED");
 
   for(uint8_t t = 5; t > 0; t--) {
     Serial.printf("[SETUP] BOOT WAIT %d...\r\n", t);
@@ -118,7 +144,7 @@ void setup() {
     Serial.println("MDNS.begin failed");
   }
 
-  webSocket.setAuthorization(socket_user,socket_password);
+  //webSocket.setAuthorization(socket_user,socket_password);
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
   
@@ -128,4 +154,38 @@ void setup() {
 
 void loop() {
   webSocket.loop();
+  /*
+  if(calculations > -1){
+    calculations++;
+  }
+  if(calculations == 30) {
+      if(actions > 0){
+        Serial.print("AKTIONS ");
+        Serial.print(actions);
+        Serial.println();
+        if(actions == 1){
+           irsendSamsung.sendSAMSUNG(0xE0E040BF, 32);
+        }else if (actions == 2) {
+          irsendTeac.sendNEC(0xA156E916, 32);
+        }
+      }
+      actions = 0;
+      calculations = -1;
+   }
+   int distance = measureDistance();
+   //Serial.println(entfernung, DEC) ;
+   if(distanceBefore != NULL && !action &&
+    distanceBefore - distance > 10){
+      action = true;
+      actions++;
+      if(calculations == -1){
+        calculations = 0;
+      }
+   }else if(action){
+      action = false;
+   }
+  
+   distanceBefore = distance;
+   delay(50);*/
+
 }
