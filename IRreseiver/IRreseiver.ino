@@ -27,7 +27,7 @@
 
 #include <ArduinoOTA.h>
 
-int RECV_PIN = D5; 
+int RECV_PIN = D7; 
  
 IRrecv irrecv(RECV_PIN);
 decode_results results;

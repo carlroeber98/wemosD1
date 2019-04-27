@@ -1,5 +1,15 @@
+#include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
 #include <Math.h>
+#include <WebSocketClient.h>
+
+const char* ssid = "ruessel";
+const char* password = "Elinet123";
+char path[] = "/";
+char host[] = "192.168.0.212";
+  
+WebSocketClient webSocketClient;
+WiFiClient client;
 
 const int trigger = D6;
 const int echo = D7;
@@ -14,9 +24,15 @@ int distanceBefore;
 void setup() {
   pinMode(trigger, OUTPUT);
   pinMode(echo, INPUT);
-  digitalWrite(trigger, LOW); //Signal abschalten
-
+  digitalWrite(trigger, LOW);
   Serial.begin(115200);
+
+  WiFi.begin(ssid, password);
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
 }
 
 void loop() {
@@ -28,6 +44,38 @@ void loop() {
       Serial.print("AKTIONS ");
       Serial.print(actions);
       Serial.println();
+      
+      if (client.connect("192.168.0.212", 81)) {
+        Serial.println("Connected");
+      } else {
+        Serial.println("Connection failed.");
+      }
+    
+      // Handshake with the server
+      webSocketClient.path = path;
+      webSocketClient.host = host;
+      if (client.connected() && webSocketClient.handshake(client)) {
+        Serial.println("Handshake successful");
+      } else {
+        Serial.println("Handshake failed.");
+      }
+
+      if(client.connected()){
+        if(actions == 1){
+          Serial.println(1);
+          webSocketClient.sendData("samsung;0xE0E040BF");
+        }else if (actions == 2){
+          Serial.println(2);
+          webSocketClient.sendData("teac;0xA156E916");
+        }else if (actions == 3){
+          Serial.println(3);
+        }else if (actions == 4){
+          Serial.println(4);
+        }
+      }
+    }
+    if (!client.connected()) {  
+       client.stop();
     }
     actions = 0;
     calculations = -1;
