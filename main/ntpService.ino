@@ -1,12 +1,12 @@
 #include <WiFiUdp.h>
 
-WiFiUDP UDP;   
+WiFiUDP UDP;
 
 IPAddress timeServerIP;
 const char* NTPServerName = "times.tubit.tu-berlin.de";
 const int NTP_PACKET_SIZE = 48;
 
-byte NTPBuffer[NTP_PACKET_SIZE]; 
+byte NTPBuffer[NTP_PACKET_SIZE];
 
 unsigned long intervalNTP = 3600000;
 unsigned long prevNTP = 0;
@@ -23,23 +23,23 @@ void initNTP() {
   Serial.print("Local port: ");
   Serial.println(UDP.localPort());
   Serial.println();
-  
-  if(!WiFi.hostByName(NTPServerName, timeServerIP)) {
+
+  if (!WiFi.hostByName(NTPServerName, timeServerIP)) {
     Serial.println("DNS lookup failed. Rebooting.");
     Serial.flush();
     ESP.reset();
   }
-  
+
   Serial.print("Time server IP:\t");
   Serial.println(timeServerIP);
 
   Serial.println("\r\nSending NTP request..");
-  sendNTPpacket(timeServerIP);  
+  sendNTPpacket(timeServerIP);
   prevNTP = millis();
   prevBlindsTimeCheck = millis();
 }
 
-void calculateTime(){
+void calculateTime() {
   unsigned long currentMillis = millis();
 
   if (currentMillis - prevNTP > intervalNTP) {
@@ -60,39 +60,33 @@ void calculateTime(){
     ESP.reset();
   }
 
-  uint32_t preActualTime = timeUNIX + (currentMillis - lastNTPResponse)/1000;
+  uint32_t preActualTime = timeUNIX + (currentMillis - lastNTPResponse) / 1000;
   if (preActualTime != currentTime && timeUNIX != 0) { // If a second has passed since last print
     currentTime = preActualTime;
-
-    char* hoursAsString = (char*) malloc( 2 * sizeof(int));
-    char* minutesAsString = (char*) malloc( 2 * sizeof(int));
-    char* secondsAsString = (char*) malloc( 2 * sizeof(int));
-
-
-    sprintf(hoursAsString, "%d", (int) getHours(currentTime));
-    sprintf(minutesAsString, "%d", (int) getMinutes(currentTime));
-    sprintf(secondsAsString, "%d", (int) getSeconds(currentTime));
-
-    Serial.printf("\rLocal time: %s:%s:%s", hoursAsString, minutesAsString, secondsAsString);
-    
-    hoursAsString = normalize(hoursAsString);
-    minutesAsString = normalize(minutesAsString);
-    secondsAsString = normalize(secondsAsString);
-   
-    Serial.printf("\rLocal normalized time: %s:%s:%s", hoursAsString, minutesAsString, secondsAsString);
-    Serial.println();
-     //checkBlindsTime(strcat((char*) getHours(currentTime), (char*) getMinutes(currentTime)));
-     
-    free(hoursAsString);
-    free(minutesAsString);
-    free(secondsAsString);
-      
-  }  
+  }
 
   if (currentMillis - prevBlindsTimeCheck > 60000) {
     prevBlindsTimeCheck = currentMillis;
-    if(currentTime != 0){
-       //checkBlindsTime(strcat((char*) getHours(currentTime), (char*) getMinutes(currentTime))); 
+    if (currentTime != 0) {
+      char* hoursAsString = (char*) malloc( 2 * sizeof(int));
+      char* minutesAsString = (char*) malloc( 2 * sizeof(int));
+      char* secondsAsString = (char*) malloc( 2 * sizeof(int));
+
+      sprintf(hoursAsString, "%d", (int) getHours(currentTime));
+      sprintf(minutesAsString, "%d", (int) getMinutes(currentTime));
+      sprintf(secondsAsString, "%d", (int) getSeconds(currentTime));
+
+      hoursAsString = normalize(hoursAsString);
+      minutesAsString = normalize(minutesAsString);
+      secondsAsString = normalize(secondsAsString);
+
+      Serial.printf("\rLocal normalized time: %s:%s:%s", hoursAsString, minutesAsString, secondsAsString);
+      Serial.println();
+      //checkBlindsTime(strcat((char*) getHours(currentTime), (char*) getMinutes(currentTime)));
+
+      free(hoursAsString);
+      free(minutesAsString);
+      free(secondsAsString);
     }
   }
 }

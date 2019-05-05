@@ -8,7 +8,7 @@ char delimiter[] = ";";
 
 void setup() {
 
-  if(SERIAL_DEBUG_OUTPUT){
+  if (SERIAL_DEBUG_OUTPUT) {
     Serial.begin(115200);
   }
 
@@ -17,7 +17,7 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.println("PINS INITIALIZED");
 
-  for(uint8_t t = 5; t > 0; t--) {
+  for (uint8_t t = 5; t > 0; t--) {
     Serial.printf("[SETUP] BOOT WAIT %d...\r\n", t);
     //Serial.flush();
     delay(1000);
@@ -31,4 +31,4 @@ void setup() {
 void loop() {
   websocketLoop();
   calculateTime();
-} 
+}

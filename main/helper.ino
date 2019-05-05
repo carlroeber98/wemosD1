@@ -28,7 +28,7 @@ inline int getHours(uint32_t UNIXTime) {
 }
 
 char* normalize(char* timeAsString) {
-  if (strlen(timeAsString) < 2){
+  if (strlen(timeAsString) < 2) {
     return strcat("0", timeAsString);
   }
   return timeAsString;

@@ -2,16 +2,16 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266WiFiMulti.h>
 
-const char* ssid = "Brraaa";
-const char* password = "12345678";
+const char* ssid = "ruessel";
+const char* password = "Elinet123";
 
 MDNSResponder mdns;
 ESP8266WiFiMulti WiFiMulti;
 
-void connectToNetwork(){
+void connectToNetwork() {
   WiFiMulti.addAP(ssid, password);
-  
-  while(WiFiMulti.run() != WL_CONNECTED) {
+
+  while (WiFiMulti.run() != WL_CONNECTED) {
     Serial.print(".");
     delay(100);
   }
