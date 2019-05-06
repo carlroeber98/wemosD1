@@ -1,5 +1,6 @@
 #include <ArduinoOTA.h>
 #include <WebSocketsServer.h>
+#include <String.h>
 
 const bool SERIAL_DEBUG_OUTPUT = true;
 const bool WEBSOCKET_AUTH = false;

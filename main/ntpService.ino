@@ -71,19 +71,17 @@ void calculateTime() {
       char* hoursAsString = (char*) malloc( 2 * sizeof(int));
       char* minutesAsString = (char*) malloc( 2 * sizeof(int));
       char* secondsAsString = (char*) malloc( 2 * sizeof(int));
-
       sprintf(hoursAsString, "%d", (int) getHours(currentTime));
-      sprintf(minutesAsString, "%d", (int) getMinutes(currentTime));
+      sprintf(minutesAsString, "%d", (int) getMinutes(currentTime) + 1);
       sprintf(secondsAsString, "%d", (int) getSeconds(currentTime));
 
       hoursAsString = normalize(hoursAsString);
       minutesAsString = normalize(minutesAsString);
       secondsAsString = normalize(secondsAsString);
 
-      Serial.printf("\rLocal normalized time: %s:%s:%s", hoursAsString, minutesAsString, secondsAsString);
+      Serial.printf("\rLocal normalized time: %s:%s:%s (+1 minute)", hoursAsString, minutesAsString, secondsAsString);
       Serial.println();
-      //checkBlindsTime(strcat((char*) getHours(currentTime), (char*) getMinutes(currentTime)));
-
+      checkBlindsTime(String(String(hoursAsString) + ":" +  String(minutesAsString)));
       free(hoursAsString);
       free(minutesAsString);
       free(secondsAsString);

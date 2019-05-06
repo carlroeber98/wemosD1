@@ -29,7 +29,13 @@ inline int getHours(uint32_t UNIXTime) {
 
 char* normalize(char* timeAsString) {
   if (strlen(timeAsString) < 2) {
-    return strcat("0", timeAsString);
+    char* copy = (char*) malloc( 2 * sizeof(int));
+    strcpy(copy, timeAsString);
+    timeAsString = "";
+    strcat(timeAsString, "0");
+    strcat(timeAsString, copy);
+    free(copy);
+    return timeAsString;
   }
   return timeAsString;
 }

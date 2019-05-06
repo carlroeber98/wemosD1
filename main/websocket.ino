@@ -16,9 +16,6 @@ void startWebSocket() {
   if (SERIAL_DEBUG_OUTPUT) {
     Serial.println("WebSocket started");
   }
-  char* test = getBlindsTime();
-  Serial.println(test);
-  free(test);
 }
 
 void websocketLoop() {
@@ -37,15 +34,13 @@ void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t leng
     case WStype_CONNECTED:
       {
         IPAddress ip = webSocket.remoteIP(num);
-        Serial.printf("[%u] Client from %d.%d.%d.%d url: %s\r\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-
-        //webSocket.sendTXT(num, getBlindsTime());
+        Serial.printf("[%u] Client from %d.%d.%d.%d \r\n", num, ip[0], ip[1], ip[2], ip[3]);
+        webSocket.sendTXT(num, getBlindsTime().c_str());
       }
       connectedClients++;
       Serial.print("Connected clients:");
       Serial.print(connectedClients);
       Serial.println();
-
       break;
     case WStype_TEXT:
       if (strstr((const char *) payload, "blinds") != 0) {

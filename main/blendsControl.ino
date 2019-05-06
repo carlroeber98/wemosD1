@@ -1,6 +1,6 @@
 
-char* upTime = "08:00";
-char* downTime = "22:00";
+String upTime = String("08:00");
+String downTime = String("22:00");
 
 char* upCode;
 char* downCode;
@@ -10,31 +10,25 @@ void setBlindsTime(char* payload) {
   char* action = strtok(NULL, delimiter);
   char* actionTime = strtok(NULL, delimiter);
   if (strstr(action, "UP")) {
-    upTime = actionTime;
+    upTime = (String) actionTime;
   }
   else if (strstr(action, "DOWN")) {
-    downTime = actionTime;
+    downTime = (String) actionTime;
   }
   Serial.println(upTime);
   Serial.println(downTime);
 }
 
-void checkBlindsTime(char* currentTime) {
-  if (strstr(currentTime, upTime)) {
+void checkBlindsTime(String currentTime) {
+  Serial.println(currentTime);
+  if (currentTime.equals(upTime)) {
     Serial.println("UP");
   }
-  else if (strstr(currentTime, downTime)) {
+  else if (currentTime.equals(downTime)) {
     Serial.println("DOWN");
   }
 }
 
-char* getBlindsTime() {
-  char* values = (char*) malloc(50  * sizeof(char));
-  strcat(values, "{UP:");
-  strcat(values, upTime);
-  strcat(values, ",");
-  strcat(values, "DOWN:");
-  strcat(values, downTime);
-  strcat(values, "}");
-  return values;
+String getBlindsTime() {
+  return String("{UP:" + upTime + "," + "DOWN:" + downTime + "}");
 }
