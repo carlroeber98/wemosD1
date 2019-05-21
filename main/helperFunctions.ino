@@ -1,10 +1,8 @@
-uint32_t getHexCodeFromPayload(char* payload) {
-  strtok(payload, delimiter);
-  char* hex = strtok(NULL, delimiter);
+uint32_t getHexCodeFromChar(char* code) {
   uint32_t val = 0;
-  while (*hex) {
+  while (*code) {
     // get current character then increment
-    char byte = *hex++;
+    char byte = *code++;
     // transform hex character to the 4bit equivalent number, using the ascii table indexes
     if (byte >= '0' && byte <= '9') byte = byte - '0';
     else if (byte >= 'a' && byte <= 'f') byte = byte - 'a' + 10;

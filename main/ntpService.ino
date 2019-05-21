@@ -10,14 +10,11 @@ byte NTPBuffer[NTP_PACKET_SIZE];
 
 unsigned long intervalNTP = 3600000;
 unsigned long prevNTP = 0;
-unsigned long prevBlindsTimeCheck = 0;
 unsigned long lastNTPResponse;
 
 uint32_t timeUNIX = 0;
 
-unsigned long currentTime = 0;
-
-void initNTP() {
+void initNTPService() {
   Serial.println("Starting UDP");
   UDP.begin(123);
   Serial.print("Local port: ");
@@ -36,15 +33,14 @@ void initNTP() {
   Serial.println("\r\nSending NTP request..");
   sendNTPpacket(timeServerIP);
   prevNTP = millis();
-  prevBlindsTimeCheck = millis();
 }
 
-void calculateTime() {
+void handleNtpResponse() {
   unsigned long currentMillis = millis();
 
   if (currentMillis - prevNTP > intervalNTP) {
     prevNTP = currentMillis;
-    Serial.println("\r\nSending NTP request..");
+    Serial.println("Sending NTP request");
     sendNTPpacket(timeServerIP);
   }
 
@@ -58,34 +54,6 @@ void calculateTime() {
     Serial.println("More than 3 hour since last NTP response. Rebooting.");
     Serial.flush();
     ESP.reset();
-  }
-
-  uint32_t preActualTime = timeUNIX + (currentMillis - lastNTPResponse) / 1000;
-  if (preActualTime != currentTime && timeUNIX != 0) { // If a second has passed since last print
-    currentTime = preActualTime;
-  }
-
-  if (currentMillis - prevBlindsTimeCheck > 60000) {
-    prevBlindsTimeCheck = currentMillis;
-    if (currentTime != 0) {
-      char* hoursAsString = (char*) malloc( 2 * sizeof(int));
-      char* minutesAsString = (char*) malloc( 2 * sizeof(int));
-      char* secondsAsString = (char*) malloc( 2 * sizeof(int));
-      sprintf(hoursAsString, "%d", (int) getHours(currentTime));
-      sprintf(minutesAsString, "%d", (int) getMinutes(currentTime) + 1);
-      sprintf(secondsAsString, "%d", (int) getSeconds(currentTime));
-
-      hoursAsString = normalize(hoursAsString);
-      minutesAsString = normalize(minutesAsString);
-      secondsAsString = normalize(secondsAsString);
-
-      Serial.printf("\rLocal normalized time: %s:%s:%s (+1 minute)", hoursAsString, minutesAsString, secondsAsString);
-      Serial.println();
-      checkBlindsTime(String(String(hoursAsString) + ":" +  String(minutesAsString)));
-      free(hoursAsString);
-      free(minutesAsString);
-      free(secondsAsString);
-    }
   }
 }
 
@@ -113,4 +81,12 @@ uint32_t getTime() {
   // subtract seventy years:
   uint32_t UNIXTime = NTPTime - seventyYears + 7200;
   return UNIXTime;
+}
+
+unsigned long getLastNTPResponseTime() {
+  return lastNTPResponse;
+}
+
+uint32_t getTimeUNIX(){
+  return timeUNIX;
 }

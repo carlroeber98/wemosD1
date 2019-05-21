@@ -12,30 +12,30 @@ IRsend irsendSamsung = IRsend(SEND_SAMSUNG_PIN);
 IRsend irsendLED = IRsend(SEND_LED_PIN);
 RCSwitch rfSender = RCSwitch();
 
-const char TYPE[][10] = {"samsung", "teac", "switch", "led"};
+const char TYPE[][10] = {"SAMSUNG", "TEAC", "SWITCH", "LED"};
 
-void initSender() {
+void initializePins() {
   irsendTeac.begin();
   irsendSamsung.begin();
   irsendLED.begin();
   rfSender.enableTransmit(SEND_SWITCH_PIN);
 }
 
-void sendHexCode(const char * payload) {
-  if (strstr(payload, TYPE[0]) != 0) {
-    irsendSamsung.sendSAMSUNG(getHexCodeFromPayload((char*) payload), 32);
+void sendHexCode(const char* type, char* code) {
+  if (strstr(type, TYPE[0]) != 0) {
+    irsendSamsung.sendSAMSUNG(getHexCodeFromChar(code), 32);
     Serial.println("SAMSUNG");
   }
-  else if (strstr(payload, TYPE[1]) != 0) {
-    irsendTeac.sendNEC(getHexCodeFromPayload((char*) payload), 32);
+  else if (strstr(type, TYPE[1]) != 0) {
+    irsendTeac.sendNEC(getHexCodeFromChar(code), 32);
     Serial.println("TEAC");
   }
-  else if (strstr(payload, TYPE[2]) != 0) {
-    rfSender.send(getHexCodeFromPayload((char*) payload), 24);
+  else if (strstr(type, TYPE[2]) != 0) {
+    rfSender.send(getHexCodeFromChar(code), 24);
     Serial.println("SWITCH");
   }
-  else if (strstr(payload, TYPE[3]) != 0) {
-    irsendLED.sendNEC(getHexCodeFromPayload((char*) payload), 32);
+  else if (strstr(type, TYPE[3]) != 0) {
+    irsendLED.sendNEC(getHexCodeFromChar(code), 32);
     Serial.println("LED");
   }
   else {

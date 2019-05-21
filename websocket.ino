@@ -1,6 +1,6 @@
 #include <ESP8266WebServer.h>
 
-const char* socket_user = "angular";
+const char* socket_user = "server";
 const char* socket_password = "FLpRduPT9gmfsCW6tHh2WDuTa2JqgJ";
 
 int connectedClients = 0;

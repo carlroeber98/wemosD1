@@ -18,11 +18,11 @@ void connectToNetwork() {
   Serial.println("");
 
   if (mdns.begin("com22-101", WiFi.localIP())) {
-    mdns.addService("ws", "tcp", 81);
+    mdns.addService("https", "tcp", 443);
     Serial.println("MDNS responder started");
   } else {
     Serial.println("MDNS.begin failed");
   }
   Serial.println(WiFi.localIP());
-  Serial.println("Port: 81");
+  Serial.println("Port: 443");
 }

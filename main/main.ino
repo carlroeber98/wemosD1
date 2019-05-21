@@ -1,19 +1,16 @@
 #include <ArduinoOTA.h>
-#include <WebSocketsServer.h>
 #include <String.h>
 
 const bool SERIAL_DEBUG_OUTPUT = true;
-const bool WEBSOCKET_AUTH = false;
+const bool WEBSOCKET_AUTH = true;
 
 char delimiter[] = ";";
 
 void setup() {
 
-  if (SERIAL_DEBUG_OUTPUT) {
-    Serial.begin(115200);
-  }
-
-  initSender();
+  Serial.begin(115200);
+  
+  initializePins();
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.println("PINS INITIALIZED");
@@ -23,13 +20,16 @@ void setup() {
     //Serial.flush();
     delay(1000);
   }
+  
   connectToNetwork();
 
-  initNTP();
-  startWebSocket();
+  initNTPService();
+  initHttpsServer();
 }
 
 void loop() {
-  websocketLoop();
-  calculateTime();
+  //websocketLoop();
+  serverLoop();
+  handleNtpResponse();
+  updateTime();
 }
