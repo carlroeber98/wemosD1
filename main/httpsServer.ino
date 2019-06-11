@@ -1,7 +1,8 @@
 #include <ESP8266WebServerSecure.h>
 #include <ESP8266mDNS.h>
 
-BearSSL::ESP8266WebServerSecure server(443);
+ESP8266WebServer server(80);
+//BearSSL::ESP8266WebServerSecure server(443);
 
 static const char serverCert[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -60,9 +61,9 @@ const char* pswd = "esp8266";
 
 void initHttpsServer(){
 
-  configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
-  
-  server.setRSACert(new BearSSL::X509List(serverCert), new BearSSL::PrivateKey(serverKey));
+  //configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+  //Serial.println(millis());
+  //server.setRSACert(new BearSSL::X509List(serverCert), new BearSSL::PrivateKey(serverKey));
 
   server.on("/status", [](){
     server.send(200, "text/plain", "Status:OK");
@@ -72,13 +73,19 @@ void initHttpsServer(){
     if (!server.authenticate(user, pswd)){
       return server.requestAuthentication(DIGEST_AUTH, "SmartC-Wemos Authentification", "Authentication Failed");
     }
-    Serial.println(server.args());
     if(server.args() == 2){
       sendHexCode(server.arg("type").c_str(), strdup(server.arg("code").c_str()));
       server.send(202, "text/plain", "Parameters successful transmitted and parsed");
     }else{
       server.send(404, "text/plain", "Parameters have a wrong format");
     }
+  });
+
+  server.on("/off", [](){
+    if (!server.authenticate(user, pswd)){
+      return server.requestAuthentication(DIGEST_AUTH, "SmartC-Wemos Authentification", "Authentication Failed");
+    }
+    server.send(200, "text/plain", "OFF");
   });
 
   server.on("/getactiontime", [](){
@@ -105,7 +112,8 @@ void initHttpsServer(){
   });
 
   server.begin();
-  Serial.println("HTTPS server started");
+  //Serial.println("HTTPS server started");
+  Serial.println("HTTP server started");
 }
 
 void serverLoop(){

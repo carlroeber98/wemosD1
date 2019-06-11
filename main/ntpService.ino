@@ -37,7 +37,6 @@ void initNTPService() {
 
 void handleNtpResponse() {
   unsigned long currentMillis = millis();
-
   if (currentMillis - prevNTP > intervalNTP) {
     prevNTP = currentMillis;
     Serial.println("Sending NTP request");

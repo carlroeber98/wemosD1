@@ -1,3 +1,5 @@
+#include <time.h>
+
 unsigned long prevTimeCheck = 0;
 
 unsigned long currentTime = 0;
@@ -23,10 +25,11 @@ void updateTime(){
   unsigned long currentMillis = millis();
   
   uint32_t preCurrentTime = getTimeUNIX() + (currentMillis - getLastNTPResponseTime()) / 1000;
-  if (preCurrentTime != currentTime && timeUNIX != 0) {
+  if (preCurrentTime != currentTime) {
+    //time_t now = time(NULL);
+    //Serial.println(now);
     currentTime = preCurrentTime;
-    Serial.println(preCurrentTime);
-    //checkBlindsTime();
+    //checkBlindsTime(); //check every second
   }
 }
 

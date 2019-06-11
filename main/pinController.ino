@@ -2,6 +2,7 @@
 #include <IRsend.h>
 #include <IRremoteESP8266.h>
 
+const int STATE_LED = D3;
 const int SEND_TEAC_PIN = D4;
 const int SEND_SAMSUNG_PIN = D5;
 const int SEND_SWITCH_PIN = D6;
@@ -19,9 +20,12 @@ void initializePins() {
   irsendSamsung.begin();
   irsendLED.begin();
   rfSender.enableTransmit(SEND_SWITCH_PIN);
+  //pinMode(STATE_LED, OUTPUT);
 }
 
 void sendHexCode(const char* type, char* code) {
+  Serial.println(code);
+  Serial.println(getHexCodeFromChar(code));
   if (strstr(type, TYPE[0]) != 0) {
     irsendSamsung.sendSAMSUNG(getHexCodeFromChar(code), 32);
     Serial.println("SAMSUNG");

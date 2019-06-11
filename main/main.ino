@@ -23,13 +23,12 @@ void setup() {
   
   connectToNetwork();
 
-  initNTPService();
+  //initNTPService();
   initHttpsServer();
 }
 
 void loop() {
-  //websocketLoop();
   serverLoop();
-  handleNtpResponse();
-  updateTime();
+  //handleNtpResponse();
+  //updateTime();
 }
