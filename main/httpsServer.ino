@@ -59,14 +59,16 @@ G3uzRZ2UScfurHCaU9/IN6KuC/XKflsZEQ77UfF4mn7xOaeKjmun/8Qk8X2fogcw
 const char* user = "admin";
 const char* pswd = "esp8266";
 
-void initHttpsServer(){
+void initHttpServer(boolean secure){
 
-  //configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
-  //Serial.println(millis());
-  //server.setRSACert(new BearSSL::X509List(serverCert), new BearSSL::PrivateKey(serverKey));
+  if (secure) {
+    //configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+    //Serial.println(millis());
+    //server.setRSACert(new BearSSL::X509List(serverCert), new BearSSL::PrivateKey(serverKey));
+  }
 
   server.on("/status", [](){
-    server.send(200, "text/plain", "Status:OK");
+    server.send(200, "text/plain", "Status: OK");
   });
   
   server.on("/send", [](){
@@ -74,7 +76,7 @@ void initHttpsServer(){
       return server.requestAuthentication(DIGEST_AUTH, "SmartC-Wemos Authentification", "Authentication Failed");
     }
     if(server.args() == 2){
-      sendHexCode(server.arg("type").c_str(), strdup(server.arg("code").c_str()));
+      getAndSendHexCode(server.arg("type").c_str(), strdup(server.arg("code").c_str()));
       server.send(202, "text/plain", "Parameters successful transmitted and parsed");
     }else{
       server.send(404, "text/plain", "Parameters have a wrong format");
@@ -100,7 +102,7 @@ void initHttpsServer(){
       return server.requestAuthentication(DIGEST_AUTH, "SmartC-Wemos Authentification", "Authentication Failed");
     }
     if(server.args() == 2){
-      setAction(strdup(server.arg("type").c_str()), strdup(server.arg("time").c_str()));
+      //setAction(strdup(server.arg("type").c_str()), strdup(server.arg("time").c_str()));
       server.send(202, "text/plain", "Parameters successful transmitted and parsed");
     }else{
        server.send(404, "text/plain", "Code ");

@@ -2,11 +2,13 @@
 #include <IRsend.h>
 #include <IRremoteESP8266.h>
 
-const int STATE_LED = D3;
+const int TRIGGER = D2;
+const int ECHO = D3;
 const int SEND_TEAC_PIN = D4;
 const int SEND_SAMSUNG_PIN = D5;
 const int SEND_SWITCH_PIN = D6;
 const int SEND_LED_PIN = D7;
+const int RESEIVER = D8;
 
 IRsend irsendTeac = IRsend(SEND_TEAC_PIN);
 IRsend irsendSamsung = IRsend(SEND_SAMSUNG_PIN);
@@ -20,29 +22,47 @@ void initializePins() {
   irsendSamsung.begin();
   irsendLED.begin();
   rfSender.enableTransmit(SEND_SWITCH_PIN);
-  //pinMode(STATE_LED, OUTPUT);
+  pinMode(TRIGGER, OUTPUT);
+  pinMode(ECHO, INPUT);
+  digitalWrite(TRIGGER, LOW);
 }
 
-void sendHexCode(const char* type, char* code) {
-  Serial.println(code);
-  Serial.println(getHexCodeFromChar(code));
+void getAndSendHexCode(const char* type, char* code) {
+  sendHexCode(type, getHexCodeFromChar(code));
+}
+
+void sendHexCode(const char* type, uint32_t code){
+  Serial.println(code, HEX);
   if (strstr(type, TYPE[0]) != 0) {
-    irsendSamsung.sendSAMSUNG(getHexCodeFromChar(code), 32);
+    irsendSamsung.sendSAMSUNG(code, 32);
     Serial.println("SAMSUNG");
   }
   else if (strstr(type, TYPE[1]) != 0) {
-    irsendTeac.sendNEC(getHexCodeFromChar(code), 32);
+    irsendTeac.sendNEC(code, 32);
     Serial.println("TEAC");
   }
   else if (strstr(type, TYPE[2]) != 0) {
-    rfSender.send(getHexCodeFromChar(code), 24);
+    rfSender.send(code, 24);
     Serial.println("SWITCH");
   }
   else if (strstr(type, TYPE[3]) != 0) {
-    irsendLED.sendNEC(getHexCodeFromChar(code), 32);
+    irsendLED.sendNEC(code, 32);
     Serial.println("LED");
   }
   else {
     Serial.println("Unknown type");
   }
+}
+
+int measureDistance() { 
+   long t = 0;
+   digitalWrite(TRIGGER, LOW); 
+   delayMicroseconds(3);
+   noInterrupts();
+   digitalWrite(TRIGGER, HIGH);
+   delayMicroseconds(10);
+   digitalWrite(TRIGGER, LOW); 
+   t = pulseIn(ECHO, HIGH);
+   interrupts(); 
+   return ((t/2) / 29.1); 
 }

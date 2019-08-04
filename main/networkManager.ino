@@ -26,11 +26,3 @@ void connectToNetwork() {
   Serial.println(WiFi.localIP());
   Serial.println("Port: 443");
 }
-
-void setWIFIConnection(boolean turnOff){
-  if(turnOff){
-    
-  }else{
-    
-  }
-}
